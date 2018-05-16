@@ -231,7 +231,7 @@ public final class CassandraStorage implements IStorage, IDistributedStorage {
     insertRepairUnitPrepStmt =
         session.prepare(
             "INSERT INTO repair_unit_v1(id, cluster_name, keyspace_name, column_families, "
-                + "incremental_repair, nodes, datacenters, blacklisted_tables) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+                + "incremental_repair, nodes, data_centers, blacklisted_tables) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
     getRepairUnitPrepStmt = session.prepare("SELECT * FROM repair_unit_v1 WHERE id = ?");
     insertRepairSegmentPrepStmt = session
         .prepare(
@@ -635,7 +635,7 @@ public final class CassandraStorage implements IStorage, IDistributedStorage {
                   repairUnitRow.getSet("column_families", String.class),
                   repairUnitRow.getBool("incremental_repair"),
                   repairUnitRow.getSet("nodes", String.class),
-                  repairUnitRow.getSet("datacenters", String.class),
+                  repairUnitRow.getSet("data_centers", String.class),
                   repairUnitRow.getSet("blacklisted_tables", String.class))
               .build(id);
     }
@@ -655,7 +655,7 @@ public final class CassandraStorage implements IStorage, IDistributedStorage {
           && repairUnitRow.getSet("column_families", String.class).equals(params.columnFamilies)
           && repairUnitRow.getBool("incremental_repair") == params.incrementalRepair
           && repairUnitRow.getSet("nodes", String.class).equals(params.nodes)
-          && repairUnitRow.getSet("datacenters", String.class).equals(params.datacenters)
+          && repairUnitRow.getSet("data_centers", String.class).equals(params.datacenters)
           && repairUnitRow.getSet("blacklisted_tables", String.class).equals(params.blacklistedTables)) {
 
         repairUnit =
@@ -665,7 +665,7 @@ public final class CassandraStorage implements IStorage, IDistributedStorage {
                     repairUnitRow.getSet("column_families", String.class),
                     repairUnitRow.getBool("incremental_repair"),
                     repairUnitRow.getSet("nodes", String.class),
-                    repairUnitRow.getSet("datacenters", String.class),
+                    repairUnitRow.getSet("data_centers", String.class),
                     repairUnitRow.getSet("blacklisted_tables", String.class))
                 .build(repairUnitRow.getUUID("id"));
         // exit the loop once we find a match

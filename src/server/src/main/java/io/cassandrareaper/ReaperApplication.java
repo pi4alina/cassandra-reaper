@@ -19,8 +19,8 @@ import io.cassandrareaper.ReaperApplicationConfiguration.JmxCredentials;
 import io.cassandrareaper.jmx.JmxConnectionFactory;
 import io.cassandrareaper.jmx.JmxConnectionsInitializer;
 import io.cassandrareaper.resources.ClusterResource;
-import io.cassandrareaper.resources.DiagEventSubscriptionResource;
 import io.cassandrareaper.resources.DiagEventSseResource;
+import io.cassandrareaper.resources.DiagEventSubscriptionResource;
 import io.cassandrareaper.resources.PingResource;
 import io.cassandrareaper.resources.ReaperHealthCheck;
 import io.cassandrareaper.resources.RepairRunResource;
@@ -140,15 +140,14 @@ public final class ReaperApplication extends Application<ReaperApplicationConfig
   }
 
   @Override
-  public void run(ReaperApplicationConfiguration config, Environment environment) throws Exception {
+  public void run(ReaperApplicationConfiguration config, Environment environment)
+      throws ReaperException, InterruptedException {
+
     // Using UTC times everywhere as default. Affects only Yoda time.
     DateTimeZone.setDefault(DateTimeZone.UTC);
-
     checkConfiguration(config);
     context.config = config;
-
     addSignalHandlers(); // SIGHUP, etc.
-
     context.metricRegistry = environment.metrics();
     CollectorRegistry.defaultRegistry.register(new DropwizardExports(environment.metrics()));
 
@@ -252,9 +251,7 @@ public final class ReaperApplication extends Application<ReaperApplicationConfig
 
     final DiagEventSseResource diagEvents = new DiagEventSseResource(context);
     environment.jersey().register(diagEvents);
-
     Thread.sleep(1000);
-
     SchedulingManager.start(context);
 
     if (config.hasAutoSchedulingEnabled()) {

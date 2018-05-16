@@ -63,7 +63,7 @@ public class DiagEventSubscriptionService {
 
   private static final ExecutorService EXECUTOR = Executors.newWorkStealingPool();
   private static final ScheduledExecutorService SCHEDULED_EXECUTOR = Executors.newScheduledThreadPool(1);
-  private static final int UPDATE_ENABLED_INTERVAL_SECS = 60*15;
+  private static final int UPDATE_ENABLED_INTERVAL_SECS = 60 * 15;
 
   private final AppContext context;
 
@@ -114,16 +114,16 @@ public class DiagEventSubscriptionService {
 
     LOG.debug("Creating SSE broadcaster for subscription {} and client {}",  sub.getId(), remoteAddr);
     Collection<CompletableFuture<JmxProxy>> jmxProxies = sub.getIncludeNodes().stream()
-            .map((nodeName) -> Node.builder().withCluster(cluster.get()).withHostname(nodeName).build())
-            .map((node) -> CompletableFuture.supplyAsync(() -> {
-                      try {
-                        return context.jmxConnectionFactory.connect(node, context.config.getJmxConnectionTimeoutInSeconds());
-                      } catch (ReaperException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                      }
-                    },
-                    EXECUTOR))
-            .collect(Collectors.toSet());
+        .map((nodeName) -> Node.builder().withCluster(cluster.get()).withHostname(nodeName).build())
+        .map((node) -> CompletableFuture.supplyAsync(() -> {
+          try {
+            return context.jmxConnectionFactory.connect(node, context.config.getJmxConnectionTimeoutInSeconds());
+          } catch (ReaperException | InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+        },
+        EXECUTOR))
+        .collect(Collectors.toSet());
 
     // the broadcaster will close all jmx connection in case none of the clients is connected anymore
     final Broadcaster sseBroadcaster = new Broadcaster(jmxProxies);
@@ -171,10 +171,13 @@ public class DiagEventSubscriptionService {
             .collect(Collectors.toSet());
 
     // determine which of the ad-hoc subscriptions all currently active
-    Set<DiagEventSubscription> subsAdHocActive = subsAdHoc.stream().filter((sub) -> {
-      Broadcaster broadcaster = BROADCASTER_BY_SUBSCRIPTION.get(sub.getId());
-      return broadcaster != null && !broadcaster.isClosed();
-    }).collect(Collectors.toSet());
+    Set<DiagEventSubscription> subsAdHocActive = subsAdHoc
+        .stream()
+        .filter((sub) -> {
+          Broadcaster broadcaster = BROADCASTER_BY_SUBSCRIPTION.get(sub.getId());
+          return broadcaster != null && !broadcaster.isClosed();
+        })
+        .collect(Collectors.toSet());
 
     // create a two sets for each node: active and non-active events
     Map<Node, Set<String>> eventsByNodeActive = new HashMap<>();
